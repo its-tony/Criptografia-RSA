@@ -77,3 +77,121 @@ def calcular_parametros(p, q, e):
         raise ValueError("El MCD de e y phi debe ser 1.")
 
     return n, phi
+
+
+def encriptar(mensaje, p, q, e):
+    n, phi = calcular_parametros(p, q, e)
+
+    if not mensaje.strip(" "):
+        raise ValueError("Ingresa al menos un carácter distinto de un espacio :)")
+
+    for caracter in mensaje:
+        if not 32 <= ord(caracter) <= 126:
+            raise ValueError("El mensaje solo puede contener caracteres ASCII imprimibles (Estas ingresando caracters que no se permiten en este proyecto)")
+
+    longitud = len(mensaje)
+    relleno = longitud % 2 == 1
+    texto = mensaje
+    if relleno:
+        texto += " "
+
+    bloques_cifrados = []
+    detalle = []
+    for posicion in range(0, len(texto), 2):
+        pareja = texto[posicion:posicion + 2]
+        ascii_1 = f"{ord(pareja[0]):03d}"
+        ascii_2 = f"{ord(pareja[1]):03d}"
+        bloque_original = ascii_1 + ascii_2
+        bloque_cifrado = f"{potencia_modular(int(bloque_original), e, n):06d}"
+
+        bloques_cifrados.append(bloque_cifrado)
+        detalle.append({
+            "caracteres": pareja,
+            "ascii_1": ascii_1,
+            "ascii_2": ascii_2,
+            "bloque_original": bloque_original,
+            "bloque_cifrado": bloque_cifrado,
+        })
+
+    return {
+        "cifrado": " ".join(bloques_cifrados),
+        "longitud": longitud,
+        "relleno": relleno,
+        "n": n,
+        "phi": phi,
+        "llave_publica": (e, n),
+        "bloques": detalle,
+    }
+
+
+def leer_bloques_cifrados(cifrado, n):
+    bloques = []
+
+    # Cada grupo sin espacios debe contener bloques completos
+    for grupo in cifrado.split(" "):
+        if not grupo:
+            continue
+        if len(grupo) % 6 != 0 or not grupo.isascii() or not grupo.isdecimal():
+            raise ValueError("El cifrado debe contener bloques de seis dígitos del 0 al 9")
+
+        for posicion in range(0, len(grupo), 6):
+            bloque = grupo[posicion:posicion + 6]
+            if int(bloque) >= n:
+                raise ValueError(f"El bloque {bloque} debe ser menor que n ({n}) ")
+            bloques.append(bloque)
+
+    if not bloques:
+        raise ValueError("Ingresa al menos un bloque de 6 digitos ")
+
+    return bloques
+
+
+def desencriptar(cifrado, longitud, p, q, e):
+    n, phi = calcular_parametros(p, q, e)
+    bloques_cifrados = leer_bloques_cifrados(cifrado, n)
+    longitud_con_relleno = len(bloques_cifrados) * 2
+
+    if type(longitud) is not int or longitud not in (longitud_con_relleno, longitud_con_relleno - 1):
+        raise ValueError(
+            f"Para {len(bloques_cifrados)} bloque(s), L debe ser "
+            f"{longitud_con_relleno - 1} o {longitud_con_relleno}."
+        )
+
+    d = inverso_modular(e, phi)
+    parejas = []
+    detalle = []
+    for bloque_cifrado in bloques_cifrados:
+        bloque_original = f"{potencia_modular(int(bloque_cifrado), d, n):06d}"
+        ascii_1 = bloque_original[:3]
+        ascii_2 = bloque_original[3:]
+        codigo_1 = int(ascii_1)
+        codigo_2 = int(ascii_2)
+        if not (32 <= codigo_1 <= 126 and 32 <= codigo_2 <= 126):
+            raise ValueError(f"El bloque {bloque_cifrado} no produce dos caracteres ASCII válidos")
+
+        pareja = chr(codigo_1) + chr(codigo_2)
+        parejas.append(pareja)
+        detalle.append({
+            "caracteres": pareja,
+            "ascii_1": ascii_1,
+            "ascii_2": ascii_2,
+            "bloque_original": bloque_original,
+            "bloque_cifrado": bloque_cifrado,
+        })
+
+    mensaje = "".join(parejas)
+    relleno = longitud % 2 == 1
+    if relleno:
+        if not mensaje.endswith(" "):
+            raise ValueError("Falta el espacio de relleno al final del mensaje")
+        mensaje = mensaje[:-1]
+
+    return {
+        "mensaje": mensaje,
+        "longitud": longitud,
+        "relleno": relleno,
+        "n": n,
+        "phi": phi,
+        "d": d,
+        "bloques": detalle,
+    }
