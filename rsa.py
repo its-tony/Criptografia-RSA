@@ -82,8 +82,8 @@ def calcular_parametros(p, q, e):
 def encriptar(mensaje, p, q, e):
     n, phi = calcular_parametros(p, q, e)
 
-    if not mensaje.strip(" "):
-        raise ValueError("Ingresa al menos un carácter distinto de un espacio :)")
+    if not mensaje:
+        raise ValueError("Ingresa al menos un carácter.")
 
     for caracter in mensaje:
         if not 32 <= ord(caracter) <= 126:
@@ -125,23 +125,15 @@ def encriptar(mensaje, p, q, e):
 
 
 def leer_bloques_cifrados(cifrado, n):
-    bloques = []
+    if not cifrado:
+        raise ValueError("Ingresa al menos un bloque de seis dígitos.")
 
-    # Cada grupo sin espacios debe contener bloques completos
-    for grupo in cifrado.split(" "):
-        if not grupo:
-            continue
-        if len(grupo) % 6 != 0 or not grupo.isascii() or not grupo.isdecimal():
-            raise ValueError("El cifrado debe contener bloques de seis dígitos del 0 al 9")
-
-        for posicion in range(0, len(grupo), 6):
-            bloque = grupo[posicion:posicion + 6]
-            if int(bloque) >= n:
-                raise ValueError(f"El bloque {bloque} debe ser menor que n ({n}) ")
-            bloques.append(bloque)
-
-    if not bloques:
-        raise ValueError("Ingresa al menos un bloque de 6 digitos ")
+    bloques = cifrado.split(" ")
+    for bloque in bloques:
+        if len(bloque) != 6 or not bloque.isascii() or not bloque.isdecimal():
+            raise ValueError("Escribe bloques de seis dígitos separados por un solo espacio.")
+        if int(bloque) >= n:
+            raise ValueError(f"El bloque {bloque} debe ser menor que n ({n}).")
 
     return bloques
 
