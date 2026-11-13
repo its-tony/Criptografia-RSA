@@ -1,4 +1,4 @@
-def es_primo(numero):
+def es_primo(numero: int) -> bool:
     if numero < 2:
         return False
 
@@ -11,39 +11,58 @@ def es_primo(numero):
     return True
 
 
-def mcd(a, b):
-    a = abs(a)
-    b = abs(b)
-
+def mcd(a: int, b: int) -> int:
     while b != 0:
         a, b = b, a % b
 
     return a
 
 
-def inverso_modular(numero, modulo):
-    resto_anterior, resto = modulo, numero % modulo
-    coeficiente_anterior, coeficiente = 0, 1
-# estos coeficientes indican cuánto aporta el número a cada resto
-    while resto != 0:
-        cociente = resto_anterior // resto
-        resto_anterior, resto = resto, resto_anterior % resto
-        coeficiente_anterior, coeficiente = (
-            coeficiente,
-            coeficiente_anterior - cociente * coeficiente,
-        )
+def bezout_matricial(a: int, b: int) -> tuple[int, int]:
+    """Devuelve (x, y) con a*x + b*y = MCD(a, b)."""
 
-    if resto_anterior != 1:
-        raise ValueError("El número no tiene inverso para este módulo.")
+    if type(a) is not int or type(b) is not int:
+        raise TypeError("a y b deben ser enteros.")
+    if a < 1 or b < 1:
+        raise ValueError("a y b deben ser positivos.")
 
-    return coeficiente_anterior % modulo
+    cocientes = []
+    while b != 0:
+        cociente = a // b
+        residuo = a % b
+        cocientes.append(cociente)
+        a = b
+        b = residuo
+
+    cocientes.pop()
+
+    matriz = [[1, 0], [0, 1]]
+    for cociente in cocientes:
+        matriz = [
+            [matriz[0][0] * cociente + matriz[0][1], matriz[0][0]],
+            [matriz[1][0] * cociente + matriz[1][1], matriz[1][0]],
+        ]
+
+    signo = 1 if len(cocientes) % 2 == 0 else -1
+    inversa = [
+        [matriz[1][1] * signo, -matriz[0][1] * signo],
+        [-matriz[1][0] * signo, matriz[0][0] * signo],
+    ]
+
+    return inversa[1][0], inversa[1][1]
 
 
-def potencia_modular(base, exponente, modulo):
-    resultado = 1 % modulo
+def inverso_modular(numero: int, modulo: int) -> int:
+    x, _ = bezout_matricial(numero, modulo)
+    return x % modulo
+
+
+def potencia_modular(base: int, exponente: int, modulo: int) -> int:
+    """Calcula base**exponente (mod modulo) por cuadrados sucesivos."""
+
+    resultado = 1
     base = base % modulo
 
-# cada vuelta usa un dígito del exponente en binario
     while exponente > 0:
         if exponente % 2 == 1:
             resultado = (resultado * base) % modulo
@@ -53,33 +72,26 @@ def potencia_modular(base, exponente, modulo):
     return resultado
 
 
-def calcular_parametros(p, q, e):
-    
-#todo eso es programación defensiva, para que el usuario no meta la pata :)
-    if type(p) is not int or type(q) is not int or type(e) is not int:
-        raise ValueError("p, q y e deben ser números enteros")
-
-    if p < 2 or q < 2:
-        raise ValueError("p y q deben ser números primos ")
+def calcular_parametros(p: int, q: int, e: int) -> tuple[int, int]:
     if p == q:
-        raise ValueError("p y q deben ser distintos ")
+        raise ValueError("p y q deben ser primos distintos.")
+    if not es_primo(p) or not es_primo(q):
+        raise ValueError("p y q deben ser números primos.")
 
     n = p * q
     if not 126126 < n < 1000000:
-        raise ValueError("El producto p × q debe estar entre 126126 y 1000000, sin incluirlos")
-    if not es_primo(p) or not es_primo(q):
-        raise ValueError("p y q deben ser números primos ")
+        raise ValueError("p × q debe estar entre 126126 y 1000000, sin incluirlos.")
 
     phi = (p - 1) * (q - 1)
     if e <= 1:
         raise ValueError("e debe ser mayor que 1.")
     if mcd(e, phi) != 1:
-        raise ValueError("El MCD de e y phi debe ser 1.")
+        raise ValueError("El MCD de e y φ debe ser 1.")
 
     return n, phi
 
 
-def encriptar(mensaje, p, q, e):
+def encriptar(mensaje: str, p: int, q: int, e: int) -> dict:
     n, phi = calcular_parametros(p, q, e)
 
     if not mensaje:
@@ -87,7 +99,7 @@ def encriptar(mensaje, p, q, e):
 
     for caracter in mensaje:
         if not 32 <= ord(caracter) <= 126:
-            raise ValueError("El mensaje solo puede contener caracteres ASCII imprimibles (Estas ingresando caracters que no se permiten en este proyecto)")
+            raise ValueError("El mensaje solo puede contener caracteres ASCII imprimibles.")
 
     longitud = len(mensaje)
     relleno = longitud % 2 == 1
@@ -124,7 +136,7 @@ def encriptar(mensaje, p, q, e):
     }
 
 
-def leer_bloques_cifrados(cifrado, n):
+def leer_bloques_cifrados(cifrado: str, n: int) -> list[str]:
     if not cifrado:
         raise ValueError("Ingresa al menos un bloque de seis dígitos.")
 
@@ -138,12 +150,12 @@ def leer_bloques_cifrados(cifrado, n):
     return bloques
 
 
-def desencriptar(cifrado, longitud, p, q, e):
+def desencriptar(cifrado: str, longitud: int, p: int, q: int, e: int) -> dict:
     n, phi = calcular_parametros(p, q, e)
     bloques_cifrados = leer_bloques_cifrados(cifrado, n)
     longitud_con_relleno = len(bloques_cifrados) * 2
 
-    if type(longitud) is not int or longitud not in (longitud_con_relleno, longitud_con_relleno - 1):
+    if longitud not in (longitud_con_relleno, longitud_con_relleno - 1):
         raise ValueError(
             f"Para {len(bloques_cifrados)} bloque(s), L debe ser "
             f"{longitud_con_relleno - 1} o {longitud_con_relleno}."

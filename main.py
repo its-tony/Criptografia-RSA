@@ -1,5 +1,4 @@
 import re
-from decimal import Decimal
 
 import streamlit as st
 
@@ -8,10 +7,9 @@ from rsa import desencriptar, encriptar
 
 def leer_entero(texto, nombre):
     texto = texto.strip()
-    if not re.fullmatch(r"[+-]?\d+(?:_\d+)*", texto):
+    if not re.fullmatch(r"[+-]?\d+", texto):
         raise ValueError(f"{nombre} debe ser un número entero")
-    # Decimal permite convertir enteros largos sin cambiar el límite de Python
-    return int(Decimal(texto))
+    return int(texto)
 
 
 def pedir_parametros(operacion):
@@ -69,7 +67,7 @@ def mostrar_encriptacion():
         st.code(resultado["cifrado"], language="text", wrap_lines=True)
         mostrar_resumen(resultado)
         e_publico, n_publico = resultado["llave_publica"]
-        st.write(f"**Llave pública (e, n)** · ({Decimal(e_publico)}, {n_publico})")
+        st.write(f"**Llave pública (e, n)** · ({e_publico}, {n_publico})")
         mostrar_bloques(resultado["bloques"])
 
 

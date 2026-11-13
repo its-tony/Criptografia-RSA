@@ -65,5 +65,5 @@ Al desencriptar con `L` impar, el programa comprueba que el último carácter se
 ## Archivos y algoritmos
 
 - [`main.py`](main.py) contiene la interfaz de Streamlit y es el punto de entrada.
-- [`rsa.py`](rsa.py) contiene las validaciones y la lógica de RSA. Las funciones propias son `mcd` (algoritmo de Euclides), `inverso_modular` (Euclides extendido) y `potencia_modular` (cuadrados sucesivos). La función `es_primo` verifica la primalidad por división de prueba.
+- [`rsa.py`](rsa.py) contiene las validaciones y la lógica de RSA. Las funciones propias son `mcd` (algoritmo de Euclides), `bezout_matricial` e `inverso_modular` (para obtener `d`), y `potencia_modular` (cuadrados sucesivos). La función `es_primo` verifica la primalidad por división de prueba.
 - [`requirements.txt`](requirements.txt) indica la versión de Streamlit usada.
