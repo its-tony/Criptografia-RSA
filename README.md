@@ -1,15 +1,19 @@
 # Criptografía RSA
-Universidad del Valle de Guatemala 
+Universidad del Valle de Guatemala 2026 
+
+**Integrantes** — Antony Portillo y Jordi Cardona
 
 La aplicación encripta y desencripta mensajes de texto con RSA y muestra la conversión ASCII y los cálculos por bloque.
 
-**Integrantes** — Antony Portillo y Jordi Cardona.
+## VIDEO
+
+https://youtu.be/948Idriwf1o (lo recomendamos ver primero antes de probar el programa)
 
 ## Instalación y ejecución
 
 Se recomienda Python 3.12. El proyecto se verificó en Windows con Python 3.12.6 y Streamlit 1.45.0.
 
-Abre una terminal en la carpeta que contiene `main.py`.
+Se tiene que abrir una terminal en la carpeta que contiene `main.py` (la principal).
 
 ### Windows (PowerShell)
 
@@ -29,9 +33,9 @@ python -m pip install -r requirements.txt
 python -m streamlit run main.py
 ```
 
-Si vuelves a abrir Terminal, ejecuta `source .venv/bin/activate` desde la carpeta del proyecto antes de iniciar la app.
+Si vuelve a abrir Terminal, ejecute `source .venv/bin/activate` desde la carpeta del proyecto antes de iniciar la app.
 
-La aplicación se abre en el navegador. Si necesitas abrirla manualmente, usa la dirección local que aparece en la terminal. Para detenerla, presiona `Ctrl+C` en la terminal.
+La aplicación se abre en el navegador. Si necesitas abrirla manualmente, use la dirección local que aparece en la terminal. Para detener el programa, presione `Ctrl+C` en la terminal. o en mac `cmd+C`
 
 ## Uso y ejemplo completo
 
@@ -67,3 +71,7 @@ Al desencriptar con `L` impar, el programa comprueba que el último carácter se
 - [`main.py`](main.py) contiene la interfaz de Streamlit y es el punto de entrada.
 - [`rsa.py`](rsa.py) contiene las validaciones y la lógica de RSA. Las funciones propias son `mcd` (algoritmo de Euclides), `bezout_matricial` e `inverso_modular` (para obtener `d`), y `potencia_modular` (cuadrados sucesivos). La función `es_primo` verifica la primalidad por división de prueba.
 - [`requirements.txt`](requirements.txt) indica la versión de Streamlit usada.
+
+
+## Archivos y algoritmos
+Cualquier consulta estamos a la dispoción de resolverla :)
