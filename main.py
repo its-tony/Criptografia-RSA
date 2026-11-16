@@ -4,6 +4,8 @@ import streamlit as st
 
 from rsa import desencriptar, encriptar
 
+st.set_page_config(page_title="Criptografía RSA")
+st.title("Criptografía RSA", anchor=False)
 
 def leer_entero(texto, nombre):
     texto = texto.strip()
@@ -108,8 +110,7 @@ def mostrar_desencriptacion():
         mostrar_bloques(resultado["bloques"])
 
 
-st.set_page_config(page_title="Criptografía RSA")
-st.title("Criptografía RSA", anchor=False)
+
 
 pestaña_encriptar, pestaña_desencriptar = st.tabs(["Encriptar", "Desencriptar"])
 with pestaña_encriptar:
